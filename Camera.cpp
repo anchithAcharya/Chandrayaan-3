@@ -55,7 +55,7 @@ void Camera::set( array3f pos, array3f rot, bool add = false )
 	lookAt.z = r * sin(rotation->x) * sin(rotation->y);
 	lookAt.y = r * cos(rotation->y);
 
-	upVector = {0.0, position->y + 1.0f, 0.0};
+	upVector = {0.0, std::abs(position->y) + 1.0f, 0.0};
 }
 
 bool Camera::isEnabled() { return enabled; }

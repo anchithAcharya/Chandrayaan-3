@@ -42,8 +42,28 @@ void drawSnowMan()
 	glutSolidCone(0.08f,0.5f,10,2);
 }
 
+void handleKeys()
+{
+	if( keyStates.W )	player.moveForward();
+	if( keyStates.A )	player.moveLeft();
+	if( keyStates.S )	player.moveBackward();
+	if( keyStates.D )	player.moveRight();
+
+	if( keyStates.SPACE )	if( player.isFlying ) player.moveUp();
+	if( keyStates.LSHIFT )	if( player.isFlying ) player.moveDown();
+
+	float lookAngle= 0.1;
+
+	if( keyStates.UP )		camera.set(0, {0.0, -lookAngle, 0.0}, true);
+	if( keyStates.DOWN )	camera.set(0, {0.0, lookAngle, 0.0}, true);
+	if( keyStates.LEFT )	camera.set(0, {-lookAngle, 0.0, 0.0}, true);
+	if( keyStates.RIGHT )	camera.set(0, {lookAngle, 0.0, 0.0}, true);
+}
+
 void displayFunc()
 {
+	handleKeys();
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
@@ -88,54 +108,57 @@ void mouseFunc( int button, int state, int x, int y )
 	}
 }
 
-void keyboardFunc( unsigned char key, int x, int y )
+void keyDownFunc( unsigned char key, int x, int y )
 {
 	switch( key )
 	{
-		case 'w':	player.moveForward();
-					break;
-
-		case 'a':	player.moveLeft();
-					break;
-
-		case 's':	player.moveBackward();
-					break;
-
-		case 'd':	player.moveRight();
-					break;
+		case 'w':	keyStates.W = true; break;
+		case 'a':	keyStates.A = true; break;
+		case 's':	keyStates.S = true; break;
+		case 'd':	keyStates.D = true; break;
 
 		case 'f':	player.isFlying = !player.isFlying;
-					if( !player.isFlying ) player.position.y = 1.0;
+					if (!player.isFlying) player.position.y = 1.0;
 					break;
 
-		case ' ': 	if( player.isFlying ) player.moveUp();
-					break;
-
-		case 'c': 	if( player.isFlying ) player.moveDown();
-					break;
-
-		case 'l': 	std::cout << std::toDegrees(player.rotation.x) << " " << std::toDegrees(player.rotation.y) << " " << std::toDegrees(player.rotation.z) << std::endl;
-					break;
+		case ' ':	keyStates.SPACE = true; break;
+		case 'l':	std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl; break;
 	}
 }
 
-void specialKeyFunc( int key, int, int y )
+void keyUpFunc( unsigned char key, int x, int y )
 {
-	float lookAngle= 0.1;
-
 	switch( key )
 	{
-		case GLUT_KEY_UP:		camera.set(0, {0.0, -lookAngle, 0.0}, true);
-								break;
+		case 'w':	keyStates.W = false; break;
+		case 'a':	keyStates.A = false; break;
+		case 's':	keyStates.S = false; break;
+		case 'd':	keyStates.D = false; break;
+		case ' ':	keyStates.SPACE = false; break;
+	}
+}
 
-		case GLUT_KEY_DOWN:		camera.set(0, {0.0, lookAngle, 0.0}, true);
-								break;
+void specialKeyDownFunc( int key, int x, int y )
+{
+	switch ( key )
+	{
+		case GLUT_KEY_UP:		keyStates.UP = true; break;
+		case GLUT_KEY_DOWN:		keyStates.DOWN = true; break;
+		case GLUT_KEY_LEFT:		keyStates.LEFT = true; break;
+		case GLUT_KEY_RIGHT:	keyStates.RIGHT = true; break;
+		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = true; break;
+	}
+}
 
-		case GLUT_KEY_LEFT:		camera.set(0, {-lookAngle, 0.0, 0.0}, true);
-								break;
-
-		case GLUT_KEY_RIGHT:	camera.set(0, {lookAngle, 0.0, 0.0}, true);
-								break;
+void specialKeyUpFunc( int key, int x, int y )
+{
+	switch ( key )
+	{
+		case GLUT_KEY_UP:		keyStates.UP = false; break;
+		case GLUT_KEY_DOWN:		keyStates.DOWN = false; break;
+		case GLUT_KEY_LEFT:		keyStates.LEFT = false; break;
+		case GLUT_KEY_RIGHT:	keyStates.RIGHT = false; break;
+		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = false; break;
 	}
 }
 
@@ -216,13 +239,21 @@ int main( int argc, char **argv )
 
 	glEnable(GL_DEPTH_TEST);
 
-    glutMouseFunc(mouseFunc);
     glutIdleFunc(displayFunc);
     glutDisplayFunc(displayFunc);
-    glutReshapeFunc(reshapeFunc);
-    glutKeyboardFunc(keyboardFunc);
-	glutSpecialFunc(specialKeyFunc);
+
+	glutIgnoreKeyRepeat(1);
+
+    glutKeyboardFunc(keyDownFunc);
+	glutKeyboardUpFunc(keyUpFunc);
+
+	glutSpecialFunc(specialKeyDownFunc);
+	glutSpecialUpFunc(specialKeyUpFunc);
+
+	glutMouseFunc(mouseFunc);
     glutPassiveMotionFunc(passiveMotionFunc);
+
+    glutReshapeFunc(reshapeFunc);
 
     init();
 

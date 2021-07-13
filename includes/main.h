@@ -66,4 +66,18 @@ public:
 	void setCursor( CursorIcon i ) { glutSetCursor((int) i); }
 };
 
+struct Keys
+{
+	bool W = false;
+	bool A = false;
+	bool S = false;
+	bool D = false;
+	bool SPACE = false;
+	bool UP = false;
+	bool DOWN = false;
+	bool LEFT = false;
+	bool RIGHT = false;
+	bool LSHIFT = false;
+} keyStates;
+
 #endif //CG_PROJECT___LUNAR_LANDER_MAIN_H

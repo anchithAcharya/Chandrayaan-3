@@ -15,7 +15,7 @@ public:
 	bool isFlying = false;
 	array3f position, rotation;
 
-	static constexpr float step = 0.5;
+	static constexpr float step = 0.025;
 
 
 	void moveForward();
