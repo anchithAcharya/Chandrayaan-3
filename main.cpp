@@ -70,12 +70,16 @@ void displayFunc()
 	camera.update();
 
 	groundPlane.draw();
+
+	glColor3f(0.0, 0.0, 1.0);
+	player.render();
+
 	//draw satellite
 	 for(int i = -3; i < 3; i++) {
 		 for (int j = -3; j < 3; j++) {
 			 glPushMatrix();
-			 glTranslatef(i * 10.0, 0, j * 10.0);
-			 drawSnowMan();
+				 glTranslatef(i * 10.0, 0, j * 10.0);
+				 drawSnowMan();
 			 glPopMatrix();
 		 }
 	 }

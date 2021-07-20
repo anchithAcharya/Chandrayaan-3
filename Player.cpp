@@ -4,6 +4,7 @@
 
 #include "Player.h"
 #include <math.h>
+#include "Drawable.h"
 
 
 void Player::moveForward()
@@ -77,11 +78,11 @@ void Player::moveDown()
 void Player::render()
 {
 	glPushMatrix();
-	glLoadIdentity();
-	glRotatef(rotation.x, 1.0, 0.0, 0.0);
-	glRotatef(rotation.y, 0.0, 1.0, 0.0);
-	glRotatef(rotation.z, 0.0, 0.0, 1.0);
+//		glLoadIdentity();
 
-	model.draw();
+		glTranslatef(position.x, 0.0, position.z);
+		glRotatef(-std::toDegrees(rotation.phi), 0.0, 1.0, 0.0);
+
+		model.draw();
 	glPopMatrix();
 }
