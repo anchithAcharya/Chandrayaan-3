@@ -16,6 +16,8 @@ array3f::array3f(): array3f(0) {}
 
 array3f::array3f( std::array<float, 3> e ): array3f(e[0], e[1], e[2]) {}
 
+array3f::array3f( const array3f &other ): array3f(other.elements) {}
+
 
 array3f& array3f::operator = ( const array3f &other ) { elements = other.elements; return *this; }
 

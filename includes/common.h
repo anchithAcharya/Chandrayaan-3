@@ -32,6 +32,8 @@ public:
 
 	array3f( std::array<float, 3> e );
 
+	array3f( const array3f &other );
+
 
 	array3f &operator = ( const array3f &other );
 

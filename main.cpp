@@ -222,7 +222,7 @@ void init()
 	groundPlane.addVertex({ 100.0, 0.0,  100.0});
 	groundPlane.addVertex({ 100.0, 0.0, -100.0});
 
-//	groundPlane.addFace({{0, -1, -1}, {1, -1, -1}, {2, -1, -1}, {3, -1, -1}});
+	groundPlane.addFace({{0, -1, -1}, {1, -1, -1}, {2, -1, -1}, {3, -1, -1}});
 
 	camera.set({0.0, 1.0, 5.0}, {std::toRadians(270), std::toRadians(90.0), 0.0}, false);
 }
@@ -256,8 +256,6 @@ int main( int argc, char **argv )
     glutReshapeFunc(reshapeFunc);
 
     init();
-
-	groundPlane.addFace({{0, -1, -1}, {1, -1, -1}, {2, -1, -1}, {3, -1, -1}});
 
     glutMainLoop();
 
