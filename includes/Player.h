@@ -19,6 +19,20 @@ public:
 
 
 
+	Player()
+	{
+		Drawable d = Drawable();
+
+		d.addVertex({-1.0, 0.5, -1.0});
+		d.addVertex({-1.0, 0.5,  1.0});
+		d.addVertex({ 1.0, 0.5,  1.0});
+		d.addVertex({ 1.0, 0.5, -1.0});
+
+		d.addFace({{0, -1, -1}, {1, -1, -1}, {2, -1, -1}, {3, -1, -1}});
+
+		model.addDrawable(d);
+	}
+
 	void moveForward();
 
 	void moveBackward();
