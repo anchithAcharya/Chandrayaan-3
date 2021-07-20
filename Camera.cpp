@@ -29,31 +29,31 @@ void Camera::set( array3f pos, array3f at, array3f up, bool add = false )
 	}
 }
 
-void Camera::set( array3f pos, array3f rot, bool add = false )
+void Camera::set(array3f pos, array3f sphericalRot, bool add = false )
 {
 	if( add )
 	{
 		*position += pos;
-		*rotation += rot;
+		*rotation += sphericalRot;
 	}
 
 	else
 	{
 		*position = pos;
-		*rotation = rot;
+		*rotation = sphericalRot;
 	}
 
-	float temp = rotation->y;
+	float temp = rotation->theta;
 
-	if( temp + rot.y < std::toRadians(0) )
-		rotation->y = std::max(0.00001f, temp + rot.y);
+	if(temp + sphericalRot.theta < std::toRadians(0) )
+		rotation->theta = std::max(0.00001f, temp + sphericalRot.theta);
 
-	else if( temp + rot.y > std::toRadians(180) )
-		rotation->y = std::min(temp + rot.y, (MY_PI - 0.0001f) );
+	else if(temp + sphericalRot.theta > std::toRadians(180) )
+		rotation->theta = std::min(temp + sphericalRot.theta, (MY_PI - 0.0001f) );
 
-	lookAt.x = r * cos(rotation->x) * sin(rotation->y);
-	lookAt.z = r * sin(rotation->x) * sin(rotation->y);
-	lookAt.y = r * cos(rotation->y);
+	lookAt.x = r * cos(rotation->phi) * sin(rotation->theta);
+	lookAt.z = r * sin(rotation->phi) * sin(rotation->theta);
+	lookAt.y = r * cos(rotation->theta);
 
 	upVector = {0.0, std::abs(position->y) + 1.0f, 0.0};
 }

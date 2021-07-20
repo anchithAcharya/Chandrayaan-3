@@ -186,10 +186,10 @@ void passiveMotionFunc( int x, int y )
 
 		cursor.pos = {x,y};
 
-		float angleX = (mouseMoveDistance[0] * 180) / ( screenWidth / 0.01 );
-		float angleY = (mouseMoveDistance[1] * 180) / ( screenHeight / 0.01 );
+		float anglePhi = (mouseMoveDistance[0] * 180) / ( screenWidth / 0.01 );
+		float angleTheta = (mouseMoveDistance[1] * 180) / ( screenHeight / 0.01 );
 
-		camera.set(0, {angleX, angleY, 0.0}, true);
+		camera.set(0, {anglePhi, angleTheta, 0.0}, true);
 
 		cursor.warpHandler();
 	}

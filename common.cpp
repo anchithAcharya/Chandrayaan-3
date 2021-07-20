@@ -8,7 +8,8 @@
 array3f::array3f( float f1, float f2, float f3 ):	elements({f1, f2, f3}),
 													x(elements[0]), y(elements[1]), z(elements[2]),
 													r(elements[0]), g(elements[1]), b(elements[2]),
-													v(elements[0]), t(elements[1]), n(elements[2]) {}
+													v(elements[0]), t(elements[1]), n(elements[2]),
+													phi(elements[0]), theta(elements[1]), radius(elements[2]) {}
 
 array3f::array3f( float f ): array3f(f, f, f) {}
 

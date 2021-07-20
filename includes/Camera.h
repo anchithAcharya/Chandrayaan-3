@@ -25,7 +25,7 @@ public:
 
 	void set( array3f pos, array3f at, array3f up, bool add );
 
-	void set( array3f pos, array3f rot, bool add );
+	void set(array3f pos, array3f sphericalRot, bool add );
 
 	bool isEnabled();
 

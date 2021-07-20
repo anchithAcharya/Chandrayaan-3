@@ -22,6 +22,7 @@ public:
 	float &x, &y, &z;
 	float &r, &g, &b;
 	float &v, &t, &n;
+	float &phi, &theta, &radius;
 
 
 	array3f( float f1, float f2, float f3 );
