@@ -9,10 +9,12 @@
 void Player::moveForward()
 {
 	array3f temp;
+	float stepDistance = step;
+	if( isRunning ) stepDistance *= runModifier;
 
-	temp.x = step * cos(rotation.x);
-	temp.z = step * sin(rotation.x);
-	if( isFlying ) temp.y = step * cos(rotation.y);
+	temp.x = stepDistance * cos(rotation.x);
+	temp.z = stepDistance * sin(rotation.x);
+	if( isFlying ) temp.y = stepDistance * cos(rotation.y);
 	else temp.y = 1.0 - position.y;
 
 	position += temp;
@@ -21,10 +23,12 @@ void Player::moveForward()
 void Player::moveBackward()
 {
 	array3f temp;
+	float stepDistance = step;
+	if( isRunning ) stepDistance *= runModifier;
 
-	temp.x = -step * cos(rotation.x);
-	temp.z = -step * sin(rotation.x);
-	if( isFlying ) temp.y = -step * cos(rotation.y);
+	temp.x = -stepDistance * cos(rotation.x);
+	temp.z = -stepDistance * sin(rotation.x);
+	if( isFlying ) temp.y = -stepDistance * cos(rotation.y);
 	else temp.y = 1.0 - position.y;
 
 	position += temp;
@@ -33,9 +37,11 @@ void Player::moveBackward()
 void Player::moveLeft()
 {
 	array3f temp;
+	float stepDistance = step;
+	if( isRunning ) stepDistance *= runModifier;
 
-	temp.x = -step * cos(rotation.x - 90);
-	temp.z = -step * sin(rotation.x - 90);
+	temp.x = -stepDistance * cos(rotation.x - 90);
+	temp.z = -stepDistance * sin(rotation.x - 90);
 
 	position -= temp;
 }
@@ -43,16 +49,30 @@ void Player::moveLeft()
 void Player::moveRight()
 {
 	array3f temp;
+	float stepDistance = step;
+	if( isRunning ) stepDistance *= runModifier;
 
-	temp.x = -step * cos(rotation.x - 90);
-	temp.z = -step * sin(rotation.x - 90);
+	temp.x = -stepDistance * cos(rotation.x - 90);
+	temp.z = -stepDistance * sin(rotation.x - 90);
 
 	position += temp;
 }
 
-void Player::moveUp() { position.y += step; }
+void Player::moveUp()
+{
+	float stepDistance = step;
+	if( isRunning ) stepDistance *= runModifier;
 
-void Player::moveDown() { position.y -= step; }
+	position.y += stepDistance;
+}
+
+void Player::moveDown()
+{
+	float stepDistance = step;
+	if( isRunning ) stepDistance *= runModifier;
+
+	position.y -= stepDistance;
+}
 
 void Player::render()
 {

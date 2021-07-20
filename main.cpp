@@ -42,7 +42,7 @@ void drawSnowMan()
 	glutSolidCone(0.08f,0.5f,10,2);
 }
 
-void handleKeys()
+void handleKeyHold()
 {
 	if( keyStates.W )	player.moveForward();
 	if( keyStates.A )	player.moveLeft();
@@ -52,7 +52,7 @@ void handleKeys()
 	if( keyStates.SPACE )	if( player.isFlying ) player.moveUp();
 	if( keyStates.LSHIFT )	if( player.isFlying ) player.moveDown();
 
-	float lookAngle= 0.1;
+	float lookAngle= 0.005;
 
 	if( keyStates.UP )		camera.set(0, {0.0, -lookAngle, 0.0}, true);
 	if( keyStates.DOWN )	camera.set(0, {0.0, lookAngle, 0.0}, true);
@@ -62,7 +62,7 @@ void handleKeys()
 
 void displayFunc()
 {
-	handleKeys();
+	handleKeyHold();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -112,16 +112,29 @@ void keyDownFunc( unsigned char key, int x, int y )
 {
 	switch( key )
 	{
+		case 'W':
+		case 'W' - 64:
 		case 'w':	keyStates.W = true; break;
+
+		case 'A':
+		case 'A' - 64:
 		case 'a':	keyStates.A = true; break;
+
+		case 'S':
+		case 'S' - 64:
 		case 's':	keyStates.S = true; break;
+
+		case 'D':
+		case 'D' - 64:
 		case 'd':	keyStates.D = true; break;
+
 
 		case 'f':	player.isFlying = !player.isFlying;
 					if (!player.isFlying) player.position.y = 1.0;
 					break;
 
 		case ' ':	keyStates.SPACE = true; break;
+		case 'r':	std::cout << std::toRadians(player.rotation.x) << std::endl; break;
 		case 'l':	std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl; break;
 	}
 }
@@ -130,10 +143,23 @@ void keyUpFunc( unsigned char key, int x, int y )
 {
 	switch( key )
 	{
+		case 'W':
+		case 'W' - 64:
 		case 'w':	keyStates.W = false; break;
+
+		case 'A':
+		case 'A' - 64:
 		case 'a':	keyStates.A = false; break;
+
+		case 'S':
+		case 'S' - 64:
 		case 's':	keyStates.S = false; break;
+
+		case 'D':
+		case 'D' - 64:
 		case 'd':	keyStates.D = false; break;
+
+
 		case ' ':	keyStates.SPACE = false; break;
 	}
 }
@@ -147,6 +173,7 @@ void specialKeyDownFunc( int key, int x, int y )
 		case GLUT_KEY_LEFT:		keyStates.LEFT = true; break;
 		case GLUT_KEY_RIGHT:	keyStates.RIGHT = true; break;
 		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = true; break;
+		case GLUT_KEY_CTRL_L:	player.isRunning = true; break;
 	}
 }
 
@@ -159,6 +186,7 @@ void specialKeyUpFunc( int key, int x, int y )
 		case GLUT_KEY_LEFT:		keyStates.LEFT = false; break;
 		case GLUT_KEY_RIGHT:	keyStates.RIGHT = false; break;
 		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = false; break;
+		case GLUT_KEY_CTRL_L:	player.isRunning = false; break;
 	}
 }
 

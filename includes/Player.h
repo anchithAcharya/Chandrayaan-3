@@ -12,10 +12,11 @@ class Player
 {
 public:
 	Composite model;
-	bool isFlying = false;
+	bool isFlying = false, isRunning = false;
 	array3f position, rotation;
 
-	static constexpr float step = 0.025;
+	static constexpr float step = 0.025, runModifier = 3.0;
+
 
 
 	void moveForward();
