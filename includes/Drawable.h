@@ -16,9 +16,11 @@ private:
 	std::vector<std::vector<array3f>> faces;
 
 public:
+	GLuint textureID;
+
 	void addVertex( array3f v );
 
-	void addTexCoord( array3f t );
+	void addTexCoord( float tx, float ty );
 
 	void addNormal( array3f n );
 

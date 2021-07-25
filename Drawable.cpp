@@ -7,7 +7,7 @@
 
 void Drawable::addVertex( array3f v ) { vertices.push_back(v); }
 
-void Drawable::addTexCoord(array3f t) { texCoords.push_back(t); }
+void Drawable::addTexCoord( float tx, float ty ) { texCoords.push_back(array3f(tx, ty, 0.0)); }
 
 void Drawable::addNormal( array3f n ) { normals.push_back(n); }
 
@@ -15,6 +15,12 @@ void Drawable::addFace( std::vector<array3f> f ) { faces.push_back(f); }
 
 void Drawable::draw()
 {
+	if( textureID )
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+	}
+
 	for( auto face: faces )
 	{
 		glBegin(GL_POLYGON);
@@ -28,6 +34,8 @@ void Drawable::draw()
 
 		glEnd();
 	}
+
+	if( textureID ) glDisable(GL_TEXTURE_2D);
 }
 
 

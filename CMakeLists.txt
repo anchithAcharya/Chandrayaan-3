@@ -8,7 +8,7 @@ project(CG_Project___Lunar_Lander)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
-add_executable(CG_Project___Lunar_Lander main.cpp includes/main.h includes/common.h common.cpp Camera.cpp Player.cpp includes/Player.h Drawable.cpp includes/Drawable.h)
+add_executable(CG_Project___Lunar_Lander main.cpp includes/main.h includes/common.h common.cpp Camera.cpp Player.cpp includes/Player.h Drawable.cpp includes/Drawable.h includes/OBJloader.h)
 
 include_directories(includes)
 

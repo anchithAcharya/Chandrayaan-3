@@ -75,14 +75,15 @@ void Player::moveDown()
 	position.y -= stepDistance;
 }
 
-void Player::render()
-{
-	glPushMatrix();
-//		glLoadIdentity();
-
-		glTranslatef(position.x, 0.0, position.z);
-		glRotatef(-std::toDegrees(rotation.phi), 0.0, 1.0, 0.0);
-
-		model.draw();
-	glPopMatrix();
-}
+//void Player::render()
+//{
+//	glPushMatrix();
+////		glLoadIdentity();
+//
+//		glTranslatef(position.x, 0.0, position.z);
+//		glRotatef(-std::toDegrees(rotation.phi), 0.0, 1.0, 0.0);
+//
+////		model.draw();
+//	drawObj(rover);
+//	glPopMatrix();
+//}

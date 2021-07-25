@@ -5,7 +5,8 @@
 #ifndef CG_PROJECT___LUNAR_LANDER_MAIN_H
 #define CG_PROJECT___LUNAR_LANDER_MAIN_H
 
-
+#define SIMPLE_OBJ_IMP
+#include "OBJloader.h"
 #include "common.h"
 
 int screenHeight, screenWidth;
