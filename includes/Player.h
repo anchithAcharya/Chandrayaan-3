@@ -8,30 +8,16 @@
 
 #include "Drawable.h"
 
+
 class Player
 {
 public:
 	Composite model;
 	bool isFlying = false, isRunning = false;
-	array3f position, rotation;
+	array3f position, rotation, offset = array3f();
 
 	static constexpr float step = 0.025, runModifier = 3.0;
 
-
-
-	Player()
-	{
-		Drawable d = Drawable();
-
-		d.addVertex({-1.0, 0.5, -1.0});
-		d.addVertex({-1.0, 0.5,  1.0});
-		d.addVertex({ 1.0, 0.5,  1.0});
-		d.addVertex({ 1.0, 0.5, -1.0});
-
-		d.addFace({{0, -1, -1}, {1, -1, -1}, {2, -1, -1}, {3, -1, -1}});
-
-		model.addDrawable(d);
-	}
 
 	void moveForward();
 

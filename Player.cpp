@@ -80,8 +80,11 @@ void Player::render()
 	glPushMatrix();
 //		glLoadIdentity();
 
-		glTranslatef(position.x, 0.0, position.z);
-		glRotatef(-std::toDegrees(rotation.phi), 0.0, 1.0, 0.0);
+		offset.x = -cos(rotation.x);
+		offset.z = -sin(rotation.x);
+//		glTranslatef(position.x - offset.x, 0.0 - offset.y, position.z - offset.z);
+//		glRotatef(-std::toDegrees(rotation.phi) - 90, 0.0, 1.0, 0.0);
+//		glScalef(0.1, 0.1, 0.1);
 
 		model.draw();
 	glPopMatrix();

@@ -7,16 +7,15 @@
 
 
 #include "common.h"
-#include <math.h>
 
 
 class Camera
 {
 private:
-	array3f *position, *rotation, lookAt, upVector;
+	array3f *position, *rotation, upVector;
 	bool enabled = false;
 
-	static constexpr int r = 1;
+	static constexpr int r = 25;
 
 public:
 	Camera( array3f &pos, array3f &rot): position(&pos), rotation(&rot) {};
@@ -31,6 +30,8 @@ public:
 
 	void enable();
 	void disable();
+
+	array3f lookAt;
 };
 
 #endif //CG_PROJECT___LUNAR_LANDER_CAMERA_H

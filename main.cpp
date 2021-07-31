@@ -6,7 +6,7 @@
 #include "Drawable.h"
 #include "Camera.h"
 #include "Player.h"
-
+#include "rover.h"
 
 Player player;
 Camera camera(player.position, player.rotation);
@@ -60,6 +60,27 @@ void handleKeyHold()
 	if( keyStates.RIGHT )	camera.set(0, {lookAngle, 0.0, 0.0}, true);
 }
 
+void RenderString(std::string str, std::array<float, 3> color = {1.0, 0.0, 0.0}, void *font = GLUT_BITMAP_TIMES_ROMAN_24)
+{
+	float xp = (player.position.x + camera.lookAt.x);
+	float yp = (player.position.y + camera.lookAt.y);
+	float zp = (player.position.z + camera.lookAt.z);
+	glColor3fv(color.data());
+	glRasterPos3f( xp, yp, zp);
+	GLfloat	light_position[] = { player.position.x, player.position.y, player.position.z , 1.0 };
+	GLfloat	spot_direction[] = { xp, yp, zp };
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+	glPushMatrix();
+//	glLoadIdentity();
+	glTranslatef(xp, yp, zp);
+	glutSolidSphere(0.2, 24, 24);
+
+
+	glPopMatrix();
+	glutBitmapString(font, (unsigned char *) str.c_str());
+}
+
 void displayFunc()
 {
 	handleKeyHold();
@@ -69,12 +90,15 @@ void displayFunc()
 
 	camera.update();
 
+	RenderString("str");
+
+	glColor3f(1.0, 1.0, 1.0);
 	groundPlane.draw();
 
 	glColor3f(0.0, 0.0, 1.0);
 	player.render();
 
-	//draw satellite
+	//draw snowmen
 	 for(int i = -3; i < 3; i++) {
 		 for (int j = -3; j < 3; j++) {
 			 glPushMatrix();
@@ -138,7 +162,7 @@ void keyDownFunc( unsigned char key, int x, int y )
 					break;
 
 		case ' ':	keyStates.SPACE = true; break;
-		case 'r':	std::cout << std::toRadians(player.rotation.x) << std::endl; break;
+		case 'r':	std::cout << std::toDegrees(player.rotation.x) << " " << std::toDegrees(player.rotation.y) << " " << std::toDegrees(player.rotation.y) << std::endl; break;
 		case 'l':	std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl; break;
 	}
 }
@@ -280,6 +304,30 @@ void init()
 	camera.set({0.0, 1.0, 5.0}, {std::toRadians(270), std::toRadians(90.0), 0.0}, false);
 }
 
+void initLight()
+{
+	GLfloat mat_specular[] = { 0.1, 0.1, 0.1, 0.1 };
+	GLfloat mat_amb[] = { 0.5, 0.5, 0.5, 1.0 };
+	GLfloat zero[] = { 0.0, 0.0, 0.0, 0.0 };
+	GLfloat mat_emission[] = { 0.0, 0.0, 0.0, 1.0 };
+	GLfloat light_position[] = { 2.5, 2.5, 2.5 , 1.0 };
+	glClearColor (0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+	glMaterialfv(GL_FRONT, GL_SPECULAR, zero);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat_emission);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, mat_amb);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, mat_amb);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, mat_specular);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 45.0);
+
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+}
+
 int main( int argc, char **argv )
 {
     glutInit(&argc, argv);
@@ -309,6 +357,7 @@ int main( int argc, char **argv )
     glutReshapeFunc(reshapeFunc);
 
     init();
+    initLight();
 
     glutMainLoop();
 
