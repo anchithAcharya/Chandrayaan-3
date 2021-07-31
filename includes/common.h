@@ -13,6 +13,7 @@ constexpr float MY_PI = 3.14159265358979323846;
 #include <vector>
 #include <array>
 
+
 class array3f
 {
 private:
@@ -60,5 +61,7 @@ namespace std
 
 	inline float toDegrees( float radians ) { return ( radians * (180/MY_PI) ); }
 }
+
+GLuint loadImage( std::string filename );
 
 #endif //CG_PROJECT___LUNAR_LANDER_COMMON_H

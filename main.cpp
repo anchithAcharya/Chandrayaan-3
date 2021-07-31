@@ -250,11 +250,32 @@ void reshapeFunc( int w, int h )
 void init()
 {
 	groundPlane.addVertex({-100.0, 0.0, -100.0});
+	groundPlane.addTexCoord(0, 0);
 	groundPlane.addVertex({-100.0, 0.0,  100.0});
+	groundPlane.addTexCoord(0, 35);
 	groundPlane.addVertex({ 100.0, 0.0,  100.0});
+	groundPlane.addTexCoord(35, 35);
 	groundPlane.addVertex({ 100.0, 0.0, -100.0});
+	groundPlane.addTexCoord(35, 0);
 
-	groundPlane.addFace({{0, -1, -1}, {1, -1, -1}, {2, -1, -1}, {3, -1, -1}});
+	Material material;
+	material.shininess = 323.999994;
+	material.opacity = 1.0;
+	material.textured = true;
+	material.textureID = loadImage("D:\\Productivity\\Code\\CG\\src\\project\\res\\moon.psd");
+	material.ambient = array3f(1.0, 1.0, 1.0);
+	material.diffuse = array3f(1.0, 1.0, 1.0);
+	material.specular = array3f(0.5, 0.5, 0.5);
+	material.emission = array3f(0.0, 0.0, 0.0);
+
+	groundPlane.setMaterial(material);
+
+	defineRover(player.model);
+
+	groundPlane.addFacevtn({{0, 0, -1},
+							{1, 1, -1},
+							{2, 2, -1},
+							{3, 3, -1}});
 
 	camera.set({0.0, 1.0, 5.0}, {std::toRadians(270), std::toRadians(90.0), 0.0}, false);
 }
