@@ -3,7 +3,7 @@
 //
 
 #include "Player.h"
-#include <math.h>
+#include <cmath>
 #include "Drawable.h"
 
 
@@ -41,8 +41,8 @@ void Player::moveLeft()
 	float stepDistance = step;
 	if( isRunning ) stepDistance *= runModifier;
 
-	temp.x = -stepDistance * cos(rotation.x - 90);
-	temp.z = -stepDistance * sin(rotation.x - 90);
+	temp.x = -stepDistance * cos(rotation.x - std::toRadians(90));
+	temp.z = -stepDistance * sin(rotation.x - std::toRadians(90));
 
 	position -= temp;
 }
@@ -53,8 +53,8 @@ void Player::moveRight()
 	float stepDistance = step;
 	if( isRunning ) stepDistance *= runModifier;
 
-	temp.x = -stepDistance * cos(rotation.x - 90);
-	temp.z = -stepDistance * sin(rotation.x - 90);
+	temp.x = -stepDistance * cos(rotation.x - std::toRadians(90));
+	temp.z = -stepDistance * sin(rotation.x - std::toRadians(90));
 
 	position += temp;
 }
