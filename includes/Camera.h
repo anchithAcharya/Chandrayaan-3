@@ -5,33 +5,40 @@
 #ifndef CG_PROJECT___LUNAR_LANDER_CAMERA_H
 #define CG_PROJECT___LUNAR_LANDER_CAMERA_H
 
-
 #include "common.h"
+#include "Player.h"
 
 
-class Camera
+class Camera: public Player
 {
 private:
-	array3f *position, *rotation, upVector;
-	bool enabled = false;
-
-	static constexpr int r = 25;
+	array3f upVector, lookAt;
+	static constexpr int distanceFromCamera = 25;
 
 public:
-	Camera( array3f &pos, array3f &rot): position(&pos), rotation(&rot) {};
+	array3f offset = array3f(0, 0.5, 0);
+	bool enabled = false, isFlying = false;
+
+
+	array3f getLookAtCoords();
+
+
+	void moveForward();
+
+	void moveBackward();
+
+	void moveLeft();
+
+	void moveRight();
+
+	void moveUp();
+
+	void moveDown();
+
 
 	void update();
 
-	void set( array3f pos, array3f at, array3f up, bool add );
-
 	void set(array3f pos, array3f sphericalRot, bool add );
-
-	bool isEnabled();
-
-	void enable();
-	void disable();
-
-	array3f lookAt;
 };
 
 #endif //CG_PROJECT___LUNAR_LANDER_CAMERA_H

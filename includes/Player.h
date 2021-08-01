@@ -5,18 +5,16 @@
 #ifndef CG_PROJECT___LUNAR_LANDER_PLAYER_H
 #define CG_PROJECT___LUNAR_LANDER_PLAYER_H
 
+#include "Entity.h"
 
-#include "Drawable.h"
 
-
-class Player
+class Player: public Entity
 {
-public:
-	Composite model;
-	bool isFlying = false, isRunning = false;
-	array3f position, rotation, offset = array3f();
+private:
+	static constexpr float turnAngle = 0.2;
 
-	static constexpr float step = 0.025, runModifier = 3.0;
+public:
+	bool isRunning = false;
 
 
 	void moveForward();
@@ -26,10 +24,6 @@ public:
 	void moveLeft();
 
 	void moveRight();
-
-	void moveUp();
-
-	void moveDown();
 
 	void render();
 };

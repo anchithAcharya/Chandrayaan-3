@@ -8,17 +8,15 @@
 void defineRover( Composite &rover )
 {
 	Material material;
-	material.shininess = 128;
+	material.shininess = 1;
 	material.opacity = 1.0;
-//	material.textured = true;
-//	material.textureID = loadImage("D:\\Productivity\\Code\\CG\\src\\project\\res\\moon.psd");
 	material.ambient = array3f(0.24725,	0.1995,	0.0745);
 	material.diffuse = array3f(0.75164,	0.60648, 0.22648);
-	material.specular = array3f(0.628281 + 0.5, 0.555802 + 0.5, 0.366065 + 0.5);
+	material.specular = array3f(0.628281 - 0.5, 0.555802 - 0.5, 0.366065 - 0.5);
 	material.emission = array3f(0.0, 0.0, 0.0);
 
 	Material material001;
-	material001.shininess = 28.8;
+	material001.shininess = 1;
 	material001.opacity = 1.0;
 	material001.ambient = array3f(1.0, 1.0, 1.0);
 	material001.diffuse = array3f(0.0, 0.790083, 0.8);

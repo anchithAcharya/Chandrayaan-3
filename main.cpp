@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <GL/glut.h>
 
@@ -9,7 +10,7 @@
 #include "rover.h"
 
 Player player;
-Camera camera(player.position, player.rotation);
+Camera camera;
 Cursor& cursor = Cursor::getInstance();
 
 Drawable groundPlane = Drawable();
@@ -44,15 +45,38 @@ void drawSnowMan()
 
 void handleKeyHold()
 {
-	if( keyStates.W )	player.moveForward();
-	if( keyStates.A )	player.moveLeft();
-	if( keyStates.S )	player.moveBackward();
-	if( keyStates.D )	player.moveRight();
+	if( camera.isFlying )
+	{
+		if( keyStates.W )	camera.moveForward();
+		if( keyStates.A )	camera.moveLeft();
+		if( keyStates.S )	camera.moveBackward();
+		if( keyStates.D )	camera.moveRight();
 
-	if( keyStates.SPACE )	if( player.isFlying ) player.moveUp();
-	if( keyStates.LSHIFT )	if( player.isFlying ) player.moveDown();
+		if( keyStates.SPACE )	camera.moveUp();
+		if( keyStates.LSHIFT )	camera.moveDown();
+	}
 
-	float lookAngle= 0.005;
+	else
+	{
+		bool moved = false;
+
+		if( keyStates.W ) { player.moveForward(); moved = true; }
+		if( keyStates.A ) { player.moveLeft(); moved = true; }
+		if( keyStates.S ) { player.moveBackward(); moved = true; }
+		if( keyStates.D ) { player.moveRight(); moved = true; }
+
+		if( moved )
+		{
+			array3f rotation = player.getRotation();
+
+			camera.offset.x = -2 * cos(rotation.phi);
+			camera.offset.z = -2 * sin(rotation.phi);
+
+			camera.attach(player, camera.offset);
+		}
+	}
+
+	float lookAngle = 0.005;
 
 	if( keyStates.UP )		camera.set(0, {0.0, -lookAngle, 0.0}, true);
 	if( keyStates.DOWN )	camera.set(0, {0.0, lookAngle, 0.0}, true);
@@ -62,22 +86,21 @@ void handleKeyHold()
 
 void RenderString(std::string str, std::array<float, 3> color = {1.0, 0.0, 0.0}, void *font = GLUT_BITMAP_TIMES_ROMAN_24)
 {
-	float xp = (player.position.x + camera.lookAt.x);
-	float yp = (player.position.y + camera.lookAt.y);
-	float zp = (player.position.z + camera.lookAt.z);
+	array3f lookAt = camera.getLookAtCoords();
+	array3f position = camera.getPosition();
+	float xp = (position.x + lookAt.x);
+	float yp = (position.y + lookAt.y);
+	float zp = (position.z + lookAt.z);
 	glColor3fv(color.data());
 	glRasterPos3f( xp, yp, zp);
-	GLfloat	light_position[] = { player.position.x, player.position.y, player.position.z , 1.0 };
+	GLfloat	light_position[] = { position.x, position.y, position.z , 1.0 };
 	GLfloat	spot_direction[] = { xp, yp, zp };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-	glPushMatrix();
-//	glLoadIdentity();
-	glTranslatef(xp, yp, zp);
-	glutSolidSphere(0.2, 24, 24);
-
-
-	glPopMatrix();
+//	glPushMatrix();
+//	glTranslatef(xp, yp, zp);
+//	glutSolidSphere(0.2, 24, 24);
+//	glPopMatrix();
 	glutBitmapString(font, (unsigned char *) str.c_str());
 }
 
@@ -90,7 +113,7 @@ void displayFunc()
 
 	camera.update();
 
-	RenderString("str");
+	RenderString("+");
 
 	glColor3f(1.0, 1.0, 1.0);
 	groundPlane.draw();
@@ -118,15 +141,16 @@ void mouseFunc( int button, int state, int x, int y )
 	{
 		switch( button )
 		{
-			case GLUT_RIGHT_BUTTON:	if( camera.isEnabled() )
+			case GLUT_RIGHT_BUTTON:	if( camera.enabled )
 									{
-										camera.disable();
+										camera.enabled = false;
 										cursor.setCursor(Cursor::CursorIcon::DefaultArrow);
 									}
 
 									else
 									{
-										camera.enable();
+										camera.enabled = true;
+
 										cursor.isReset = true;
 										cursor.setCursor(Cursor::CursorIcon::None);
 									}
@@ -156,9 +180,11 @@ void keyDownFunc( unsigned char key, int x, int y )
 		case 'D' - 64:
 		case 'd':	keyStates.D = true; break;
 
+		case ' ':	keyStates.SPACE = true; break;
 
-		case 'f':	player.isFlying = !player.isFlying;
-					if (!player.isFlying) player.position.y = 1.0;
+
+		case 'f':	camera.isFlying = !camera.isFlying;
+					if( !camera.isFlying ) camera.attach(player, camera.offset);
 					break;
 
 
@@ -201,7 +227,7 @@ void specialKeyDownFunc( int key, int x, int y )
 		case GLUT_KEY_LEFT:		keyStates.LEFT = true; break;
 		case GLUT_KEY_RIGHT:	keyStates.RIGHT = true; break;
 		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = true; break;
-		case GLUT_KEY_CTRL_L:	player.isRunning = true; break;
+		case GLUT_KEY_CTRL_L:	player.isRunning = camera.isRunning = true; break;
 	}
 }
 
@@ -214,13 +240,13 @@ void specialKeyUpFunc( int key, int x, int y )
 		case GLUT_KEY_LEFT:		keyStates.LEFT = false; break;
 		case GLUT_KEY_RIGHT:	keyStates.RIGHT = false; break;
 		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = false; break;
-		case GLUT_KEY_CTRL_L:	player.isRunning = false; break;
+		case GLUT_KEY_CTRL_L:	player.isRunning = camera.isRunning = false; break;
 	}
 }
 
 void passiveMotionFunc( int x, int y )
 {
-	if( camera.isEnabled() )
+	if( camera.enabled )
 	{
 		if( cursor.isWarping  )
 		{
@@ -313,16 +339,18 @@ void initLight()
 	GLfloat light_position[] = { 2.5, 2.5, 2.5 , 1.0 };
 	glClearColor (0.0, 0.0, 0.0, 0.0);
 	glEnable(GL_BLEND);
+//	glEnable(GL_NORMALIZE);
+	glEnable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
 	glMaterialfv(GL_FRONT, GL_SPECULAR, zero);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat_emission);
+	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 	glLightfv(GL_LIGHT0, GL_AMBIENT, mat_amb);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, mat_amb);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, mat_specular);
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 45.0);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
