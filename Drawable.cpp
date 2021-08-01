@@ -4,7 +4,7 @@
 
 #include "Drawable.h"
 
-void Material::setTexture( std::string imgPath ) { Material::textureID = loadImage(imgPath); }
+void Material::setTexture( std::string imgPath ) { textured = true; textureID = loadImage(imgPath); }
 
 void Material::setColor( array3f color ) { ambient = diffuse = color; }
 

@@ -311,8 +311,7 @@ void init()
 	Material material;
 	material.shininess = 323.999994;
 	material.opacity = 1.0;
-	material.textured = true;
-	material.textureID = loadImage("D:\\Productivity\\Code\\CG\\src\\project\\res\\moon.psd");
+	material.setTexture("D:\\Productivity\\Code\\CG\\src\\project\\res\\moon.psd");
 	material.ambient = array3f(1.0, 1.0, 1.0);
 	material.diffuse = array3f(1.0, 1.0, 1.0);
 	material.specular = array3f(0.5, 0.5, 0.5);

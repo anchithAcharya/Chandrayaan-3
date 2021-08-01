@@ -5,13 +5,13 @@
 #ifndef CG_PROJECT___LUNAR_LANDER_COMMON_H
 #define CG_PROJECT___LUNAR_LANDER_COMMON_H
 
-constexpr float MY_PI = 3.14159265358979323846;
-
-
 #include <GL/freeglut.h>
 #include <iostream>
 #include <vector>
 #include <array>
+
+
+constexpr float MY_PI = 3.14159265358979323846;
 
 
 class array3f

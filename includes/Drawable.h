@@ -5,16 +5,17 @@
 #ifndef CG_PROJECT___LUNAR_LANDER_DRAWABLE_H
 #define CG_PROJECT___LUNAR_LANDER_DRAWABLE_H
 
-
 #include "common.h"
 #include <string>
 
 
 class Material
 {
-public:
+private:
 	GLuint textureID;
 	bool textured = false;
+
+public:
 	float shininess = 0.0, opacity = 1.0;
 	array3f ambient = array3f(0.2), diffuse = array3f(0.8), specular = {0}, emission = {0};
 

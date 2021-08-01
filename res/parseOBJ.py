@@ -133,11 +133,7 @@ def writeCPPCode(CPPfile):
 		text += f"\tMaterial {material.name};\n"
 		text += (f"\t{material.name}.shininess = {material.shininess};\n")
 		text += (f"\t{material.name}.opacity = {material.opacity};\n")
-		
-		if material.imgPath:
-			text += (f"\t{material.name}.textured = true;\n")
-			text += (f'\t{material.name}.textureID = loadImage("{material.imgPath}");\n')
-		
+		if material.imgPath: text += (f'\t{material.name}.setTexture("{material.imgPath}");\n')
 		text += (f"\t{material.name}.ambient = array3f({material.ambient[0]}, {material.ambient[1]}, {material.ambient[2]});\n")
 		text += (f"\t{material.name}.diffuse = array3f({material.diffuse[0]}, {material.diffuse[1]}, {material.diffuse[2]});\n")
 		text += (f"\t{material.name}.specular = array3f({material.specular[0]}, {material.specular[1]}, {material.specular[2]});\n")
