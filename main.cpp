@@ -161,9 +161,9 @@ void keyDownFunc( unsigned char key, int x, int y )
 					if (!player.isFlying) player.position.y = 1.0;
 					break;
 
-		case ' ':	keyStates.SPACE = true; break;
-		case 'r':	std::cout << std::toDegrees(player.rotation.x) << " " << std::toDegrees(player.rotation.y) << " " << std::toDegrees(player.rotation.y) << std::endl; break;
-		case 'l':	std::cout << player.position.x << " " << player.position.y << " " << player.position.z << std::endl; break;
+
+		case 'r':	std::cout << std::toDegrees(player.getRotation()) << std::endl; break;
+		case 'l':	std::cout << player.getPosition() << std::endl; break;
 	}
 }
 

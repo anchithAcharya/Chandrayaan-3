@@ -51,6 +51,8 @@ public:
 
 	bool operator != ( const array3f &other );
 
+	friend std::ostream & operator << ( std::ostream &stream, const array3f &obj );
+
 
 	std::array<float, 3>::pointer values();
 };
@@ -60,6 +62,9 @@ namespace std
 	inline float toRadians( float degrees ) { return ( degrees * (MY_PI/180) ); }
 
 	inline float toDegrees( float radians ) { return ( radians * (180/MY_PI) ); }
+
+	inline array3f toDegrees( array3f point )
+	{ return array3f( std::toDegrees(point.x), std::toDegrees(point.y), std::toDegrees(point.z) ); }
 }
 
 GLuint loadImage( std::string filename );

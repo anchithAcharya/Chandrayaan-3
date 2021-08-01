@@ -57,6 +57,10 @@ bool array3f::operator == ( const array3f &other ) { return elements == other.el
 
 bool array3f::operator != ( const array3f &other ) { return elements != other.elements; }
 
+std::ostream& operator << ( std::ostream &stream, const array3f &obj )
+{ return stream << "("  << obj.x << ", " << obj.y << ", " << obj.z << ")"; }
+
+
 std::array<float, 3>::pointer array3f::values()
 { return elements.data(); }
 
