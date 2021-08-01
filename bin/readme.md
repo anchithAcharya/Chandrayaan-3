@@ -1,0 +1,1 @@
+ The program will only run properly if there exists a 'freeglut.dll' file in the same directory as the executable. So, add the executable binary file in this directory, where I have included said file.
