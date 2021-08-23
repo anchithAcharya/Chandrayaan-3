@@ -65,14 +65,24 @@ std::array<float, 3>::pointer array3f::values()
 { return elements.data(); }
 
 
-GLuint loadImage( std::string filename )
+GLuint loadImage( std::string filename, bool texRepeat = false )
 {
 	GLuint img;
 	glGenTextures(1, &img);
 	glBindTexture(GL_TEXTURE_2D, img);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	if( texRepeat )
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+
+	else
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	}
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -87,7 +97,7 @@ GLuint loadImage( std::string filename )
 
 	else
 	{
-		std::cout << "Failed to load img" << std::endl;
+		std::cout << "Failed to load img: " << filename << std::endl;
 		std::cout << stbi_failure_reason() << std::endl;
 	}
 

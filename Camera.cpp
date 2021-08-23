@@ -106,9 +106,12 @@ void Camera::set(array3f pos, array3f sphericalRot, bool add = false )
 	else if(temp + sphericalRot.theta > std::toRadians(180) )
 		rotation.theta = std::min(temp + sphericalRot.theta, (MY_PI - 0.0001f) );
 
-	lookAt.x = distanceFromCamera * cos(rotation.phi) * sin(rotation.theta);
-	lookAt.z = distanceFromCamera * sin(rotation.phi) * sin(rotation.theta);
-	lookAt.y = distanceFromCamera * cos(rotation.theta);
+	lookAt.x = cos(rotation.phi) * sin(rotation.theta);
+	lookAt.z = sin(rotation.phi) * sin(rotation.theta);
+	lookAt.y = cos(rotation.theta);
 
-	upVector = {0.0, std::abs(position.y) + 1.0f, 0.0};
+	upVector = {0.0, 1.0f, 0.0};
 }
+
+void Camera::render()
+{ Entity::render(); }

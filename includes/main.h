@@ -78,6 +78,7 @@ struct Keys
 	bool LEFT = false;
 	bool RIGHT = false;
 	bool LSHIFT = false;
+	bool LMB = false;
 } keyStates;
 
 #endif //CG_PROJECT___LUNAR_LANDER_MAIN_H

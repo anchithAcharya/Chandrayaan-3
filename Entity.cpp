@@ -62,7 +62,7 @@ void Entity::moveDown()
 }
 
 
-void Entity::attach( const Entity &obj, array3f offset = array3f(0) )
+void Entity::attach( const Entity &obj, array3f offset )
 {
 	position.x = obj.position.x + offset.x;
 	position.y = obj.position.y + offset.y;

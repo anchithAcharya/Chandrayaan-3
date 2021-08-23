@@ -8,7 +8,7 @@ project(CG_Project___Lunar_Lander)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
-add_executable(CG_Project___Lunar_Lander includes/stb_image.h main.cpp includes/main.h common.cpp includes/common.h Camera.cpp includes/Camera.h Player.cpp includes/Player.h Drawable.cpp includes/Drawable.h rover.cpp includes/rover.h Entity.cpp includes/Entity.h)
+add_executable(CG_Project___Lunar_Lander includes/stb_image.h main.cpp includes/main.h common.cpp includes/common.h Camera.cpp includes/Camera.h Player.cpp includes/Player.h Drawable.cpp includes/Drawable.h Entity.cpp includes/Entity.h Light.cpp includes/Light.h Scene.cpp includes/Scene.h rover.cpp includes/rover.h lander.cpp)
 
 include_directories(includes)
 
@@ -22,3 +22,4 @@ add_library(Camera STATIC Camera.cpp)
 add_library(Drawable STATIC Drawable.cpp)
 add_library(Player STATIC Player.cpp)
 add_library(Entity STATIC Entity.cpp)
+add_library(Scene STATIC Scene.cpp)

@@ -8,6 +8,6 @@
 #include "Drawable.h"
 
 
-void defineRover( Composite &rover );
+void defineRover( Drawable &rover );
 
 #endif //CG_PROJECT___LUNAR_LANDER_ROVER_H

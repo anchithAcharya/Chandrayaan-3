@@ -3,8 +3,10 @@
 //
 
 #include "Drawable.h"
+#include "Scene.h"
 
-void Material::setTexture( std::string imgPath ) { textured = true; textureID = loadImage(imgPath); }
+
+void Material::setTexture( std::string imgPath, bool repeat ) { textured = true; textureID = loadImage(imgPath, repeat); }
 
 void Material::setColor( array3f color ) { ambient = diffuse = color; }
 
@@ -60,6 +62,8 @@ void Drawable::addFacevn( std::vector<std::array<float, 2>> f )
 
 void Drawable::addFacevtn( std::vector<array3f> f ) { faces.push_back(f); }
 
+void Drawable::addDrawable( Drawable d ) { drawables.push_back(d); }
+
 void Drawable::setMaterial( Material mat ) { material = mat; }
 
 void Drawable::setSmoothing( bool value ) { smoothing = value; }
@@ -67,7 +71,9 @@ void Drawable::setSmoothing( bool value ) { smoothing = value; }
 void Drawable::draw()
 {
 	if( smoothing ) glShadeModel(GL_SMOOTH);
-	else glShadeModel(GL_FLAT);
+	if( noCulling ) glDisable(GL_CULL_FACE);
+	if( noDepthTest ) glDisable(GL_DEPTH_TEST);
+	if( noLighting ) glDisable(GL_LIGHTING);
 
 	material.enable();
 
@@ -85,19 +91,13 @@ void Drawable::draw()
 		glEnd();
 	}
 
-	Material().enable();
-}
-
-
-void Composite::addDrawable( Drawable d ) { drawables.push_back(d); }
-
-void Composite::addComposite( Composite c ) { composites.push_back(c); }
-
-void Composite::draw()
-{
-	for( Composite c: composites )
-		c.draw();
-
 	for( Drawable d: drawables )
 		d.draw();
+
+	if( noLighting ) glEnable(GL_LIGHTING);
+	if( noDepthTest ) glEnable(GL_DEPTH_TEST);
+	if( noCulling ) glEnable(GL_CULL_FACE);
+	if( smoothing ) glShadeModel(GL_FLAT);
+
+	materials["none"].enable();
 }

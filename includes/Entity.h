@@ -13,10 +13,12 @@ class Entity
 {
 protected:
 	array3f position, rotation;
-	static constexpr float step = 0.025, runModifier = 3.0;
+	static constexpr float step = 0.025;
 
 public:
-	Composite model;
+	Drawable model;
+
+
 	array3f getPosition();
 
 	array3f getRotation();
@@ -34,7 +36,7 @@ public:
 
 	virtual void moveDown();
 
-	virtual void attach( const Entity &obj, array3f offset );
+	virtual void attach( const Entity &obj, array3f offset = array3f(0) );
 
 
 	virtual void render();

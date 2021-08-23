@@ -7,141 +7,155 @@
 #include "Drawable.h"
 #include "Camera.h"
 #include "Player.h"
-#include "rover.h"
+#include "Light.h"
+#include "Scene.h"
 
-Player player;
+Player rover;
 Camera camera;
+Light *light;
 Cursor& cursor = Cursor::getInstance();
 
-Drawable groundPlane = Drawable();
+Drawable introScreen;
 
-void drawSnowMan()
-{
+bool showingIntro = true, showingHelp = false;
 
-	glColor3f(1.0f, 1.0f, 1.0f);
-
-	// Draw Body
-	glTranslatef(0.0f ,0.75f, 0.0f);
-	glutSolidSphere(0.75f,20,20);
-
-	// Draw Head
-	glTranslatef(0.0f, 1.0f, 0.0f);
-	glutSolidSphere(0.25f,20,20);
-
-	// Draw Eyes
-	glPushMatrix();
-	glColor3f(0.0f,0.0f,0.0f);
-	glTranslatef(0.05f, 0.10f, 0.18f);
-	glutSolidSphere(0.05f,10,10);
-	glTranslatef(-0.1f, 0.0f, 0.0f);
-	glutSolidSphere(0.05f,10,10);
-	glPopMatrix();
-
-	// Draw Nose
-	glColor3f(1.0f, 0.5f , 0.5f);
-	glRotatef(0.0f,1.0f, 0.0f, 0.0f);
-	glutSolidCone(0.08f,0.5f,10,2);
-}
 
 void handleKeyHold()
 {
+	bool moved = false;
+
 	if( camera.isFlying )
 	{
-		if( keyStates.W )	camera.moveForward();
-		if( keyStates.A )	camera.moveLeft();
-		if( keyStates.S )	camera.moveBackward();
-		if( keyStates.D )	camera.moveRight();
 
-		if( keyStates.SPACE )	camera.moveUp();
-		if( keyStates.LSHIFT )	camera.moveDown();
+		if( keyStates.W )	{ camera.moveForward(); moved = true; }
+		if( keyStates.A )	{ camera.moveLeft(); moved = true; }
+		if( keyStates.S )	{ camera.moveBackward(); moved = true; }
+		if( keyStates.D )	{ camera.moveRight(); moved = true; }
+
+		if( keyStates.SPACE )	{ camera.moveUp(); moved = true; }
+		if( keyStates.LSHIFT )	{ camera.moveDown(); moved = true; }
 	}
 
 	else
 	{
-		bool moved = false;
-
-		if( keyStates.W ) { player.moveForward(); moved = true; }
-		if( keyStates.A ) { player.moveLeft(); moved = true; }
-		if( keyStates.S ) { player.moveBackward(); moved = true; }
-		if( keyStates.D ) { player.moveRight(); moved = true; }
+		if( keyStates.W ) { rover.moveForward(); moved = true; }
+		if( keyStates.A ) { rover.moveLeft(); moved = true; }
+		if( keyStates.S ) { rover.moveBackward(); moved = true; }
+		if( keyStates.D ) { rover.moveRight(); moved = true; }
 
 		if( moved )
 		{
-			array3f rotation = player.getRotation();
+			array3f rotation = rover.getRotation();
 
 			camera.offset.x = -2 * cos(rotation.phi);
 			camera.offset.z = -2 * sin(rotation.phi);
 
-			camera.attach(player, camera.offset);
+			if( camera.follow ) camera.attach(rover, camera.offset);
 		}
 	}
 
+	if( moved ) light->attach(camera);
+
+
+	bool cameraModified = false;
 	float lookAngle = 0.005;
 
-	if( keyStates.UP )		camera.set(0, {0.0, -lookAngle, 0.0}, true);
-	if( keyStates.DOWN )	camera.set(0, {0.0, lookAngle, 0.0}, true);
-	if( keyStates.LEFT )	camera.set(0, {-lookAngle, 0.0, 0.0}, true);
-	if( keyStates.RIGHT )	camera.set(0, {lookAngle, 0.0, 0.0}, true);
+	if( keyStates.UP )		{ camera.set(0, {0.0, -lookAngle, 0.0}, true); cameraModified = true; }
+	if( keyStates.DOWN )	{ camera.set(0, {0.0, lookAngle, 0.0}, true); cameraModified = true; }
+	if( keyStates.LEFT )	{ camera.set(0, {-lookAngle, 0.0, 0.0}, true); cameraModified = true; }
+	if( keyStates.RIGHT )	{ camera.set(0, {lookAngle, 0.0, 0.0}, true); cameraModified = true; }
+
+	if( cameraModified ) light->setSpotDirection(camera.getLookAtCoords());
+
+	if( keyStates.LMB ) rover.laserOn = true;
 }
 
-void RenderString(std::string str, std::array<float, 3> color = {1.0, 0.0, 0.0}, void *font = GLUT_BITMAP_TIMES_ROMAN_24)
-{
-	array3f lookAt = camera.getLookAtCoords();
-	array3f position = camera.getPosition();
-	float xp = (position.x + lookAt.x);
-	float yp = (position.y + lookAt.y);
-	float zp = (position.z + lookAt.z);
-	glColor3fv(color.data());
-	glRasterPos3f( xp, yp, zp);
-	GLfloat	light_position[] = { position.x, position.y, position.z , 1.0 };
-	GLfloat	spot_direction[] = { xp, yp, zp };
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-//	glPushMatrix();
-//	glTranslatef(xp, yp, zp);
-//	glutSolidSphere(0.2, 24, 24);
-//	glPopMatrix();
-	glutBitmapString(font, (unsigned char *) str.c_str());
-}
 
 void displayFunc()
 {
-	handleKeyHold();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	camera.update();
+	if( showingIntro || showingHelp ) introScreen.draw();
 
-	RenderString("+");
+	else
+	{
+		handleKeyHold();
 
-	glColor3f(1.0, 1.0, 1.0);
-	groundPlane.draw();
+		camera.update();
+		light->update();
 
-	glColor3f(0.0, 0.0, 1.0);
-	player.render();
-
-	//draw snowmen
-	 for(int i = -3; i < 3; i++) {
-		 for (int j = -3; j < 3; j++) {
-			 glPushMatrix();
-				 glTranslatef(i * 10.0, 0, j * 10.0);
-				 drawSnowMan();
-			 glPopMatrix();
-		 }
-	 }
+		camera.render();
+		groundPlane.draw();
+		lander.draw();
+		rover.render();
+	}
 
 	glutSwapBuffers();
 }
 
 
+void reshapeFunc( int w, int h )
+{
+	screenWidth = w;
+	screenHeight = h;
+
+	if ( h == 0 ) h = 1;
+	double aspectRatio = (double) w / h;
+	cursor.isReset = true;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	glViewport(0, 0, w, h);
+	if( showingIntro || showingHelp ) glOrtho(0, 1, 0, 1, 1, -1);
+	else gluPerspective(45.0, aspectRatio, 0.1, 150.0);
+
+	glMatrixMode(GL_MODELVIEW);
+}
+
+
+void menuFunc( int choice )
+{
+	switch( choice )
+	{
+		case 1:	glutFullScreenToggle(); break;
+
+		case 2:	camera.follow = !camera.follow; break;
+
+		case 3:	camera.isFlying = !camera.isFlying;
+				if( !camera.isFlying && camera.follow ) camera.attach(rover, camera.offset);
+				break;
+
+		case 4: light->toggle(); break;
+
+		case 5:	glutLeaveMainLoop(); break;
+	}
+
+	cursor.isReset = true;
+}
+
+void initMenu()
+{
+	glutCreateMenu(menuFunc);
+
+	glutAddMenuEntry("Toggle fullscreen", 1);
+	glutAddMenuEntry("Attach / Detach camera from rover", 2);
+	glutAddMenuEntry("Free-fly mode", 3);
+	glutAddMenuEntry("Toggle light", 4);
+	glutAddMenuEntry("Quit", 5);
+
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
+
 void mouseFunc( int button, int state, int x, int y )
 {
-	if( state == GLUT_DOWN )
+	if( state == GLUT_DOWN && !showingIntro )
 	{
 		switch( button )
 		{
-			case GLUT_RIGHT_BUTTON:	if( camera.enabled )
+			case GLUT_MIDDLE_BUTTON:if( camera.enabled )
 									{
 										camera.enabled = false;
 										cursor.setCursor(Cursor::CursorIcon::DefaultArrow);
@@ -156,8 +170,12 @@ void mouseFunc( int button, int state, int x, int y )
 									}
 
 									break;
+
+			case GLUT_LEFT_BUTTON:	keyStates.LMB = true; break;
 		}
 	}
+
+	else if( button == GLUT_LEFT_BUTTON ) keyStates.LMB = false;
 }
 
 void keyDownFunc( unsigned char key, int x, int y )
@@ -183,13 +201,44 @@ void keyDownFunc( unsigned char key, int x, int y )
 		case ' ':	keyStates.SPACE = true; break;
 
 
-		case 'f':	camera.isFlying = !camera.isFlying;
-					if( !camera.isFlying ) camera.attach(player, camera.offset);
+		case '\r':	if( showingIntro )
+					{
+						if( !showingHelp )
+						{
+							showingHelp = true;
+							materials["screen2D"].setTexture("D:\\Productivity\\Code\\CG Project - Lunar Lander\\res\\images\\help_screen.png");
+							introScreen.setMaterial(materials["screen2D"]);
+						}
+
+						else
+						{
+							showingIntro = showingHelp = false;
+
+							initMenu();
+							glutFullScreen();
+							reshapeFunc(screenWidth, screenHeight);
+						}
+					}
+
+					break;
+
+		case 'h':	if( showingIntro ) break;
+					showingHelp = !showingHelp;
+					reshapeFunc(screenWidth, screenHeight);
 					break;
 
 
-		case 'r':	std::cout << std::toDegrees(player.getRotation()) << std::endl; break;
-		case 'l':	std::cout << player.getPosition() << std::endl; break;
+		case 'l':	light->toggle(); break;
+
+		case 'o':	camera.follow = !camera.follow; break;
+
+		case 'f':	camera.isFlying = !camera.isFlying;
+					if( !camera.isFlying && camera.follow ) camera.attach(rover, camera.offset);
+					break;
+
+
+		case 'r':	std::cout << std::toDegrees(rover.getRotation()) << std::endl; break;
+		case 'p':	std::cout << rover.getPosition() << std::endl; break;
 	}
 }
 
@@ -227,7 +276,7 @@ void specialKeyDownFunc( int key, int x, int y )
 		case GLUT_KEY_LEFT:		keyStates.LEFT = true; break;
 		case GLUT_KEY_RIGHT:	keyStates.RIGHT = true; break;
 		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = true; break;
-		case GLUT_KEY_CTRL_L:	player.isRunning = camera.isRunning = true; break;
+		case GLUT_KEY_CTRL_L: rover.isRunning = camera.isRunning = true; break;
 	}
 }
 
@@ -240,11 +289,11 @@ void specialKeyUpFunc( int key, int x, int y )
 		case GLUT_KEY_LEFT:		keyStates.LEFT = false; break;
 		case GLUT_KEY_RIGHT:	keyStates.RIGHT = false; break;
 		case GLUT_KEY_SHIFT_L:	keyStates.LSHIFT = false; break;
-		case GLUT_KEY_CTRL_L:	player.isRunning = camera.isRunning = false; break;
+		case GLUT_KEY_CTRL_L: rover.isRunning = camera.isRunning = false; break;
 	}
 }
 
-void passiveMotionFunc( int x, int y )
+void mouseMotionFunc( int x, int y )
 {
 	if( camera.enabled )
 	{
@@ -272,88 +321,66 @@ void passiveMotionFunc( int x, int y )
 		float angleTheta = (mouseMoveDistance[1] * 180) / ( screenHeight / 0.01 );
 
 		camera.set(0, {anglePhi, angleTheta, 0.0}, true);
+		light->setSpotDirection(camera.getLookAtCoords());
 
 		cursor.warpHandler();
 	}
 }
 
 
-void reshapeFunc( int w, int h )
+void initIntroAndHelpScreen()
 {
-	screenWidth = w;
-	screenHeight = h;
+	Material screen2D;
+	screen2D.setColor(array3f(1.0));
+	screen2D.setTexture("D:\\Productivity\\Code\\CG Project - Lunar Lander\\res\\images\\intro.png");
+	materials["screen2D"] = screen2D;
 
-	if ( h == 0 ) h = 1;
-	double aspectRatio = (double) w / h;
-	cursor.isReset = true;
+	introScreen.setMaterial(screen2D);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 
-	glViewport(0, 0, w, h);
-	gluPerspective(45.0, aspectRatio, 0.1, 100.0);
+	introScreen.noCulling = true;
+	introScreen.noDepthTest = true;
+	introScreen.noLighting = true;
 
-	glMatrixMode(GL_MODELVIEW);
+
+	introScreen.addVertex({0, 0, 0});
+	introScreen.addTexCoord(0, 0);
+	introScreen.addVertex({0, 1, 0});
+	introScreen.addTexCoord(0, 1);
+	introScreen.addVertex({1, 1, 0});
+	introScreen.addTexCoord(1, 1);
+	introScreen.addVertex({1, 0, 0});
+	introScreen.addTexCoord(1, 0);
+
+	introScreen.addFacevtn({{1, 1, -1}, {2, 2, -1}, {3, 3, -1}, {4, 4, -1}});
 }
-
 
 void init()
 {
-	groundPlane.addVertex({-100.0, 0.0, -100.0});
-	groundPlane.addTexCoord(0, 0);
-	groundPlane.addVertex({-100.0, 0.0,  100.0});
-	groundPlane.addTexCoord(0, 35);
-	groundPlane.addVertex({ 100.0, 0.0,  100.0});
-	groundPlane.addTexCoord(35, 35);
-	groundPlane.addVertex({ 100.0, 0.0, -100.0});
-	groundPlane.addTexCoord(35, 0);
+	initMaterials();
+	initScene();
 
-	Material material;
-	material.shininess = 323.999994;
-	material.opacity = 1.0;
-	material.setTexture("D:\\Productivity\\Code\\CG\\src\\project\\res\\moon.psd");
-	material.ambient = array3f(1.0, 1.0, 1.0);
-	material.diffuse = array3f(1.0, 1.0, 1.0);
-	material.specular = array3f(0.5, 0.5, 0.5);
-	material.emission = array3f(0.0, 0.0, 0.0);
+	initIntroAndHelpScreen();
 
-	groundPlane.setMaterial(material);
+	initSkyBox(camera.model);
+	initPlayerModel(rover.model);
 
-	defineRover(player.model);
+	camera.set({0.0}, {0, std::toRadians(90.0), 0.0}, false);
 
-	groundPlane.addFacevtn({{0, 0, -1},
-							{1, 1, -1},
-							{2, 2, -1},
-							{3, 3, -1}});
+	array3f rotation = rover.getRotation();
 
-	camera.set({0.0, 1.0, 5.0}, {std::toRadians(270), std::toRadians(90.0), 0.0}, false);
-}
+	camera.offset.x = -2 * cos(rotation.phi);
+	camera.offset.z = -2 * sin(rotation.phi);
 
-void initLight()
-{
-	GLfloat mat_specular[] = { 0.1, 0.1, 0.1, 0.1 };
-	GLfloat mat_amb[] = { 0.5, 0.5, 0.5, 1.0 };
-	GLfloat zero[] = { 0.0, 0.0, 0.0, 0.0 };
-	GLfloat mat_emission[] = { 0.0, 0.0, 0.0, 1.0 };
-	GLfloat light_position[] = { 2.5, 2.5, 2.5 , 1.0 };
+	if( camera.follow ) camera.attach(rover, camera.offset);
+
+	light = new Light(array3f(0.5), array3f(0.5), array3f(0.1));
+	light->attach(camera);
+	light->setSpotDirection(camera.getLookAtCoords());
+
 	glClearColor (0.0, 0.0, 0.0, 0.0);
-	glEnable(GL_BLEND);
-//	glEnable(GL_NORMALIZE);
-	glEnable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
-	glMaterialfv(GL_FRONT, GL_SPECULAR, zero);
-	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, mat_amb);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, mat_amb);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, mat_specular);
-	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 30.0);
-
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
 }
+
 
 int main( int argc, char **argv )
 {
@@ -361,16 +388,28 @@ int main( int argc, char **argv )
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 
     glutInitWindowSize(500,500);
-    glutCreateWindow("Lunar Landing 3D");
+	glutInitWindowPosition(500, 200);
+    glutCreateWindow("Chandrayaan 3 - 3D");
 
-//	glutFullScreen();
 
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_LINE_SMOOTH);
+	glLineWidth(2);
+
+	glutIgnoreKeyRepeat(1);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
 
     glutIdleFunc(displayFunc);
     glutDisplayFunc(displayFunc);
 
-	glutIgnoreKeyRepeat(1);
+    glutReshapeFunc(reshapeFunc);
 
     glutKeyboardFunc(keyDownFunc);
 	glutKeyboardUpFunc(keyUpFunc);
@@ -379,12 +418,11 @@ int main( int argc, char **argv )
 	glutSpecialUpFunc(specialKeyUpFunc);
 
 	glutMouseFunc(mouseFunc);
-    glutPassiveMotionFunc(passiveMotionFunc);
+	glutMotionFunc(mouseMotionFunc);
+	glutPassiveMotionFunc(mouseMotionFunc);
 
-    glutReshapeFunc(reshapeFunc);
 
     init();
-    initLight();
 
     glutMainLoop();
 

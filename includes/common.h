@@ -67,6 +67,6 @@ namespace std
 	{ return array3f( std::toDegrees(point.x), std::toDegrees(point.y), std::toDegrees(point.z) ); }
 }
 
-GLuint loadImage( std::string filename );
+GLuint loadImage( std::string filename, bool texRepeat );
 
 #endif //CG_PROJECT___LUNAR_LANDER_COMMON_H
