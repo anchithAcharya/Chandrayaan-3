@@ -1,21 +1,5 @@
-import os
+materials = []
 
-prefix = """//
-// Created by anchi on 28/07/2021.
-//
-
-#include "rover.h"
-
-
-void defineRover( Composite &rover )
-{
-"""
-
-suffix = "}"
-
-Vcount = 0
-VNcount = 0
-VTcount = 0
 
 class Material:
 	def __init__(self, name):
@@ -38,9 +22,6 @@ class Drawable:
 		self.normals = []
 		self.faces = []
 
-materials = []
-objects = []
-
 
 def matchBeginning(text, pattern):
 	if text.startswith(pattern):
@@ -48,7 +29,9 @@ def matchBeginning(text, pattern):
 	
 	else: return None
 
-def parseMTL(text: str):
+def parseMTL():
+	with open("D:\\Productivity\\Code\\CG Project - Lunar Lander\\res\\materials.mtl", 'r') as MTLfile: text = MTLfile.read()
+
 	for line in text.splitlines():
 		if name := matchBeginning(line,"newmtl"):
 			name = name.replace('.', '').lower()
@@ -78,18 +61,21 @@ def parseMTL(text: str):
 		elif values := matchBeginning(line, "Ke"):
 			x, y, z = [float(value) for value in values.split(' ')]
 			materials[-1].emission = [x, y, z]
+	
+	return materials
 
 def parseOBJ(text):
-	global Vcount, VTcount, VNcount
+	Vcount = 0
+	VNcount = 0
+	VTcount = 0
 
+	objects = []
+	
 	for line in text.splitlines():
-		if MTLpath := matchBeginning(line, "mtllib"):
-			MTLfile = open(MTLpath, 'r')
-			parseMTL(MTLfile.read())
-			MTLfile.close()
-		
-		elif name := matchBeginning(line, "o"):
+		if name := matchBeginning(line, "o"):
 			name = name.split('_')[0]
+			name = name.replace(".00", '')
+
 			objects.append(Drawable(name))
 			
 			if len(objects) > 1:
@@ -103,6 +89,8 @@ def parseOBJ(text):
 		elif material := matchBeginning(line, "usemtl"):
 			material = material.replace('.', '').lower()
 			objects[-1].material = next((m for m in materials if m.name == material), None)
+
+			if objects[-1].material is None: raise ValueError(f"{objects[-1].name} has no material")
 
 		elif values := matchBeginning(line, "vt"):
 			x, y = [float(value) for value in values.split(' ')]
@@ -124,71 +112,107 @@ def parseOBJ(text):
 					index[0] -= Vcount
 					index[1] -= VTcount
 					index[2] -= VNcount
-
-
-def writeCPPCode(CPPfile):
-	text = ""
 	
-	for material in materials:
-		text += f"\tMaterial {material.name};\n"
-		text += (f"\t{material.name}.shininess = {material.shininess};\n")
-		text += (f"\t{material.name}.opacity = {material.opacity};\n")
-		if material.imgPath: text += (f'\t{material.name}.setTexture("{material.imgPath}");\n')
-		text += (f"\t{material.name}.ambient = array3f({material.ambient[0]}, {material.ambient[1]}, {material.ambient[2]});\n")
-		text += (f"\t{material.name}.diffuse = array3f({material.diffuse[0]}, {material.diffuse[1]}, {material.diffuse[2]});\n")
-		text += (f"\t{material.name}.specular = array3f({material.specular[0]}, {material.specular[1]}, {material.specular[2]});\n")
-		text += (f"\t{material.name}.emission = array3f({material.emission[0]}, {material.emission[1]}, {material.emission[2]});\n\n")
+	return objects
 
-	CPPfile.write(text + "\n")
+def writeCPPCode(objects, name):
 	text = ""
 
 	for object in objects:
-		text = f"\tDrawable {object.name};\n"
+		text += f"\tDrawable {object.name};\n"
 
-		text += (f"\t{object.name}.setSmoothing({'true' if object.smoothing else 'false'});\n")
-		text += (f"\t{object.name}.setMaterial({object.material.name});\n\n")
-		
+		text += f"\t{object.name}.setSmoothing({'true' if object.smoothing else 'false'});\n"
+		text += f'\t{object.name}.setMaterial(materials["{object.material.name}"]);\n\n'
+
 		for vertex in object.vertices:
-			text += (f"\t{object.name}.addVertex(array3f({vertex[0]}, {vertex[1]}, {vertex[2]}));\n")
-		
-		text += (f"\n")
+			text += f"\t{object.name}.addVertex(array3f({vertex[0]}, {vertex[1]}, {vertex[2]}));\n"
 
-		for texCoord in object.texCoords:
-			text += (f"\t{object.name}.addTexCoord({texCoord[0]}, {texCoord[1]});\n")
-		
-		text += (f"\n")
-		
+		text += f"\n"
+
 		for normal in object.normals:
-			text += (f"\t{object.name}.addNormal(array3f({normal[0]}, {normal[1]}, {normal[2]}));\n")
-		
-		text += (f"\n")
+			text += f"\t{object.name}.addNormal(array3f({normal[0]}, {normal[1]}, {normal[2]}));\n"
 
-		for face in object.faces:
-			text += (f"\t{object.name}.addFacevtn({{")
+		text += f"\n"
 
-			for point in face:
-				text += (f"{{{point[0]}, {point[1]}, {point[2]}}}")
-				if point is not face[-1]: text += (", ")
-			
-			text += (f"}});\n")
+		if object.material.imgPath:
+			for texCoord in object.texCoords:
+				text += f"\t{object.name}.addTexCoord({texCoord[0]}, {texCoord[1]});\n"
+
+			text += f"\n"
+
+			for face in object.faces:
+				text += f"\t{object.name}.addFacevtn({{"
+
+				for point in face:
+					text += f"{{{point[0]}, {point[1]}, {point[2]}}}"
+					if point is not face[-1]: text += (", ")
+
+				text += f"}});\n"
+
+		else:
+			for face in object.faces:
+				text += f"\t{object.name}.addFacevn({{"
+
+				for point in face:
+					text += f"{{{point[0]}, {point[2]}}}"
+					if point is not face[-1]: text += (", ")
+
+				text += f"}});\n"
 		
-		CPPfile.write(text + "\n\n")
-	
-	text = ""
+		text += "\n\n"
 	
 	for object in objects:
-		text += f"\trover.addDrawable({object.name});\n"
+		text += f"\t{name}.addDrawable({object.name});\n"
 
-	CPPfile.write(text)
+	return text
 
 
-OBJfile = open("C:\\Users\\anchi\\Desktop\\rover.obj", 'r')
-os.chdir(os.path.dirname("C:\\Users\\anchi\\Desktop\\rover.obj"))
-parseOBJ(OBJfile.read())
-OBJfile.close()
+def writeMaterial():
+	with open("D:\\Productivity\\Code\\CG Project - Lunar Lander\\Scene.cpp", 'r+') as CPPfile:
+		prefix, suffix = CPPfile.read().split("{", maxsplit=1)
+		_, suffix = suffix.split("}", maxsplit=1)
+		prefix += "{\n"
+		suffix = "}" + suffix
 
-CPPfile = open("/rover.cpp", 'w')
-CPPfile.write(prefix)
-writeCPPCode(CPPfile)
-CPPfile.write(suffix)
-CPPfile.close()
+		text = ""
+
+		for material in materials:
+			text += f"\tMaterial {material.name};\n"
+			text += f"\t{material.name}.shininess = {material.shininess};\n"
+			text += f"\t{material.name}.opacity = {material.opacity};\n"
+			if material.imgPath: text += f'\t{material.name}.setTexture("{material.imgPath}");\n'
+			text += f"\t{material.name}.setColor(array3f({material.diffuse[0]}, {material.diffuse[1]}, {material.diffuse[2]}));\n"
+			text += f"\t{material.name}.specular = array3f({material.specular[0]}, {material.specular[1]}, {material.specular[2]});\n"
+			text += f"\t{material.name}.emission = array3f({material.emission[0]}, {material.emission[1]}, {material.emission[2]});\n"
+			text += f'\tmaterials["{material.name}"] = {material.name};\n\n'
+
+		CPPfile.seek(0)
+		CPPfile.truncate()
+
+		CPPfile.write(prefix + text[:-1] + suffix)
+
+def writeDrawable(name: str):
+	with open(f"D:\\Productivity\\Code\\CG Project - Lunar Lander\\res\OBJs\\{name}.obj", 'r') as OBJfile: text = OBJfile.read()
+
+	objects = parseOBJ(text)
+
+	with open(f"D:\\Productivity\\Code\\CG Project - Lunar Lander\\{name}.cpp", 'r+') as CPPfile:
+		prefix, _ = CPPfile.read().split("{", maxsplit=1)
+		prefix += "{\n"
+		suffix = "}"
+
+		code = writeCPPCode(objects, name)
+
+		CPPfile.seek(0)
+		CPPfile.truncate()
+
+		CPPfile.write(prefix + code + suffix)
+
+
+parseMTL()
+writeMaterial()
+writeDrawable("lander")
+# writeDrawable("rover")
+
+if __name__ == '__main__':
+	print("done")
